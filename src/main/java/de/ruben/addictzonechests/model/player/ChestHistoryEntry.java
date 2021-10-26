@@ -1,13 +1,12 @@
-package model.player;
+package de.ruben.addictzonechests.model.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import model.chest.ChestItem;
+import de.ruben.addictzonechests.model.chest.ChestItem;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Getter
 @Setter

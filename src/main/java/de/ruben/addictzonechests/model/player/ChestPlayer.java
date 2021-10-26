@@ -1,4 +1,4 @@
-package model.player;
+package de.ruben.addictzonechests.model.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,12 +10,12 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class ChestHistory {
+@AllArgsConstructor
+public class ChestPlayer {
 
     private UUID uuid;
-    private List<ChestHistoryEntry> historyEntryList;
-
+    private List<ChestKey> keys;
+    private ChestHistory chestHistory;
 
 }

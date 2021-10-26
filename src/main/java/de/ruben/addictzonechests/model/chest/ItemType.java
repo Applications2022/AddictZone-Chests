@@ -1,4 +1,4 @@
-package model.chest;
+package de.ruben.addictzonechests.model.chest;
 
 public enum ItemType {
     NORMAL,

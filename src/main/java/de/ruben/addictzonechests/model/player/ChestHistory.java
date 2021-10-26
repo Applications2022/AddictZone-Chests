@@ -1,10 +1,9 @@
-package model.chest;
+package de.ruben.addictzonechests.model.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,10 +12,10 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chest {
+public class ChestHistory {
 
-    private @NotNull UUID id;
-    private @NotNull String name;
-    private @NotNull List<ChestItem> items;
+    private UUID uuid;
+    private List<ChestHistoryEntry> historyEntryList;
+
 
 }

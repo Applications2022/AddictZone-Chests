@@ -1,4 +1,4 @@
-package model.player;
+package de.ruben.addictzonechests.model.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
