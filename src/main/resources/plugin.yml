@@ -2,6 +2,8 @@ name: Addictzone-Chests
 version: '${project.version}'
 main: de.ruben.addictzonechests.AddictzoneChests
 api-version: 1.16
-depend: [ XCore ]
+depend: [ XDevApi ]
 authors: [ Ruben ]
 description: The Lootchest Plugin from Addictzone
+commands:
+  kisten:

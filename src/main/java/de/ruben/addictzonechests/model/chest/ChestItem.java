@@ -1,14 +1,23 @@
 package de.ruben.addictzonechests.model.chest;
 
+import de.ruben.addictzonechests.AddictzoneChests;
+import de.ruben.addictzonechests.service.RarityService;
+import de.ruben.addictzonechests.util.BukkitSerialization;
+import de.ruben.xdevapi.XDevApi;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,10 +25,51 @@ import java.util.Map;
 @AllArgsConstructor
 public class ChestItem {
 
-    private @NotNull ObjectId id;
-    private @NotNull Map<String, Object> itemStack;
-    private @NotNull ItemRarity itemRarity;
-    private @NotNull ItemType itemType;
-    private @Nullable String command;
+    private UUID id;
+    private Map<String, Object> itemStack;
+    private ItemRarity itemRarity;
+
+    public ChestItem(UUID id, Map<String, Object> itemStack, String itemRarity) {
+        this.id = id;
+        this.itemStack = itemStack;
+        ItemRarity itemRarityFromDB = new RarityService(AddictzoneChests.getInstance()).getItemRarity(itemRarity);
+        this.itemRarity = itemRarityFromDB != null ? itemRarityFromDB : new ItemRarity("§7Unbekannter Seltenheitstyp!", "§7Unbekannter Seltenheitstyp!", "", 1);
+    }
+
+    public ItemStack getItemStack(){
+        return ItemStack.deserialize(itemStack);
+    }
+
+    public void setItemStack(ItemStack itemStack){
+        this.itemStack = itemStack.serialize();
+    }
+
+    public String getItemRarityIdentifier(){
+        return itemRarity.getName();
+    }
+
+    public ChestItem fromDocument(Document document){
+        this.id = document.get("_id", UUID.class);
+
+        try {
+            this.itemStack = BukkitSerialization.itemStackArrayFromBase64(document.getString("itemStack")).serialize();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ItemRarity itemRarityFromDB = new RarityService(AddictzoneChests.getInstance()).getItemRarity(document.getString("itemRarityIdentifier"));
+        this.itemRarity = itemRarityFromDB != null ? itemRarityFromDB : new ItemRarity("§7Unbekannter Seltenheitstyp!", "§7Unbekannter Seltenheitstyp!", "", 10);
+
+        return this;
+    }
+
+    public Document toDocument(){
+        Document document = new Document("_id", id);
+
+        document.append("itemStack", BukkitSerialization.itemStackArrayToBase64(ItemStack.deserialize(this.itemStack)));
+        document.append("itemRarityIdentifier", itemRarity.getName());
+
+        return document;
+    }
 
 }
