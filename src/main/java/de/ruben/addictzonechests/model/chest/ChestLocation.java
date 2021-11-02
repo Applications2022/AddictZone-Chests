@@ -1,42 +1,40 @@
-package de.ruben.addictzonechests.model.player;
+package de.ruben.addictzonechests.model.chest;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import de.ruben.addictzonechests.model.chest.ChestItem;
 import org.bson.Document;
+import org.bukkit.Location;
 
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChestHistoryEntry {
+@Getter
+@Setter
+public class ChestLocation {
 
     private UUID uuid;
+    private Location location;
     private String chest;
-    private Date date;
-    private ChestItem win;
 
     public Document toDocument(){
         Document document = new Document("_id", uuid);
         document.append("chest", chest);
-        document.append("date", date);
-        document.append("wonItem", win.toDocument());
-
+        document.append("location", location.serialize());
         return document;
     }
 
-    public ChestHistoryEntry fromDocument(Document document){
+    public ChestLocation fromDocument(Document document){
         this.uuid = document.get("_id", UUID.class);
+        this.location = Location.deserialize((Map<String, Object>) document.get("location", Object.class));
         this.chest = document.getString("chest");
-        this.date = document.getDate("date");
-        this.win = new ChestItem().fromDocument(document.get("wonItem", Document.class));
 
         return this;
     }
+
 
 }

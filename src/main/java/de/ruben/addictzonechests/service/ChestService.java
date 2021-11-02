@@ -20,8 +20,8 @@ public class ChestService {
         this.plugin = plugin;
     }
 
-    public void createChest(String name){
-        Chest chest = new Chest(UUID.randomUUID(), name, new ArrayList<>());
+    public void createChest(String name, String prefix){
+        Chest chest = new Chest(UUID.randomUUID(), name, prefix, new ArrayList<>());
 
         if(!existChest(name)){
             getCollection().insertOne(chest.toDocument());
@@ -52,6 +52,22 @@ public class ChestService {
             List<ChestItem> items = chest.getItems();
 
             items.removeIf(chestItem1 -> chestItem1.getId().toString().equals(chestItem.getId().toString()));
+
+            chest.setItems(items);
+
+            getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+
+        }
+    }
+
+    public void removeChestItem(String name, UUID id){
+        if(existChest(name)){
+
+            Chest chest = getChest(name);
+
+            List<ChestItem> items = chest.getItems();
+
+            items.removeIf(chestItem1 -> chestItem1.getId().toString().equals(id.toString()));
 
             chest.setItems(items);
 

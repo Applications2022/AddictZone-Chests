@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -15,7 +16,7 @@ import java.util.UUID;
 public class ChestPlayer {
 
     private UUID uuid;
-    private List<ChestKey> keys;
+    private Map<String, Integer> keys;
     private ChestHistory chestHistory;
 
 }

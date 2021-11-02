@@ -1,5 +1,6 @@
 package de.ruben.addictzonechests.model.chest;
 
+import de.ruben.xdevapi.util.global.RandomUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,11 +19,25 @@ public class Chest {
 
     private @NotNull UUID id;
     private @NotNull String name;
+    private @NotNull String prefix;
     private @NotNull List<ChestItem> items;
 
     public List<ChestItem> getChestItemsWithRarity(String rarityIdentifier){
         return items.stream().filter(chestItem -> chestItem.getItemRarityIdentifier().equalsIgnoreCase(rarityIdentifier)).collect(Collectors.toList());
     }
+
+    public RandomUtil.RandomCollection<ChestItem> getWeightedChestItemList(){
+
+        RandomUtil.RandomCollection<ChestItem> randomCollection = new RandomUtil.RandomCollection();
+
+        items.forEach(chestItem -> {
+            randomCollection.add(chestItem.getItemRarity().getWeight(), chestItem);
+        });
+
+        return randomCollection;
+
+    }
+
 
     public Map<String, List<ChestItem>> getChestItemsGroupedByRarity(){
 
@@ -56,6 +71,7 @@ public class Chest {
     public Chest fromDocument(Document document){
         this.id = document.get("_id", UUID.class);
         this.name = document.getString("name");
+        this.prefix = document.getString("prefix");
 
         List<Document> items = document.getList("items", Document.class);
 
@@ -67,6 +83,7 @@ public class Chest {
     public Document toDocument(){
         Document document = new Document("_id", id);
         document.append("name", name);
+        document.append("prefix", prefix);
 
         document.append("items", items.stream().map(ChestItem::toDocument).collect(Collectors.toList()));
 

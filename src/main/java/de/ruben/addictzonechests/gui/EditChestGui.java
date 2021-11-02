@@ -1,10 +1,12 @@
 package de.ruben.addictzonechests.gui;
 
+import com.google.gson.Gson;
 import de.ruben.addictzonechests.AddictzoneChests;
 import de.ruben.addictzonechests.model.chest.Chest;
 import de.ruben.addictzonechests.model.chest.ChestItem;
 import de.ruben.addictzonechests.pagination.PaginatedArrayList;
 import de.ruben.addictzonechests.service.ChestService;
+import de.ruben.addictzonechests.service.VoucherService;
 import de.ruben.xdevapi.XDevApi;
 import de.ruben.xdevapi.custom.gui.ItemPreset;
 import de.tr7zw.nbtapi.NBTItem;
@@ -13,7 +15,10 @@ import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.components.InteractionModifier;
 import dev.triumphteam.gui.guis.Gui;
 import net.kyori.adventure.text.Component;
+import org.bson.Document;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventory;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -27,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class EditChestGui extends Gui {
 
@@ -35,7 +41,7 @@ public class EditChestGui extends Gui {
     private PaginatedArrayList paginatedArrayList;
 
     public EditChestGui(AddictzoneChests plugin, Player player, Chest chest) {
-        super(6, "Kiste Editieren - "+chest.getName()+" Kiste", Set.of(InteractionModifier.PREVENT_ITEM_SWAP, InteractionModifier.PREVENT_ITEM_TAKE, InteractionModifier.PREVENT_ITEM_PLACE));
+        super(6, "§8Kisten Editieren - "+chest.getPrefix()+" §8Kiste", Set.of(InteractionModifier.PREVENT_ITEM_SWAP, InteractionModifier.PREVENT_ITEM_TAKE, InteractionModifier.PREVENT_ITEM_PLACE));
         this.disableAllInteractions();
         this.plugin = plugin;
         this.chest = chest;
@@ -43,6 +49,10 @@ public class EditChestGui extends Gui {
         this.getFiller().fillBorder(ItemPreset.fillItem(inventoryClickEvent -> {}));
 
         this.setItem(49, ItemPreset.closeItem(inventoryClickEvent -> this.close(player)));
+
+        this.setItem(45, ItemBuilder.from(Material.ARROW).name(Component.text("§9Zurück")).asGuiItem(inventoryClickEvent -> {
+            new EditGui(player, plugin, new ChestService(plugin).getChests()).open(player);
+        }));
 
         this.setDefaultClickAction(inventoryClickEvent -> {
 
@@ -54,11 +64,11 @@ public class EditChestGui extends Gui {
                 NBTItem nbtItem = new NBTItem(clickedStack);
 
                 if(nbtItem.hasKey("chestItem")){
-                    ChestItem chestItem = nbtItem.getObject("chestItem", ChestItem.class);
+                    ChestItem chestItem = new ChestItem().fromDocument(Document.parse(nbtItem.getString("chestItem")));
 
                     new ChestService(plugin).addChestItem(chest.getName(), chestItem);
 
-                    setPageItems(player, paginatedArrayList.getPageSize());
+                    new EditChestGui(plugin, player, new ChestService(plugin).getChest(chest.getName())).open(player, paginatedArrayList.getPageIndex());
 
                     clickedStack.setAmount(0);
 
@@ -100,7 +110,8 @@ public class EditChestGui extends Gui {
 
             List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
             lore.add(Component.text(" "));
-            lore.add(Component.text("§7Seltenheit: "+chestItem.getItemRarity().getPrefix()));
+            lore.add(Component.text("§7➥ Seltenheit: "+ ChatColor.translateAlternateColorCodes('&', chestItem.getItemRarity().getPrefix())));
+            lore.add(Component.text("§7➥ Typ: §b"+(new VoucherService().isVoucher(chestItem.getItemStack()) ? "Gutschein" : "Item")));
 
             itemMeta.lore(lore);
 
@@ -109,7 +120,7 @@ public class EditChestGui extends Gui {
             this.addItem(ItemBuilder.from(itemStackToPlace).asGuiItem(inventoryClickEvent -> {
                 if(inventoryClickEvent.getClick() == ClickType.SHIFT_RIGHT) {
                     new ChestService(plugin).removeChestItem(chest.getName(), chestItem);
-                    this.close(player);
+                    new EditChestGui(plugin, player, new ChestService(plugin).getChest(chest.getName())).open(player, paginatedArrayList.getPageIndex());
                     player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast das ChestItem mit der UUID §b"+chestItem.getId()+" §7erfolgreich gelöscht!");
                 }
             }));
