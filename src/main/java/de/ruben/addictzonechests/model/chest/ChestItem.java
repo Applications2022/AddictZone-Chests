@@ -3,19 +3,14 @@ package de.ruben.addictzonechests.model.chest;
 import de.ruben.addictzonechests.AddictzoneChests;
 import de.ruben.addictzonechests.service.RarityService;
 import de.ruben.addictzonechests.util.BukkitSerialization;
-import de.ruben.xdevapi.XDevApi;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,7 +28,7 @@ public class ChestItem {
         this.id = id;
         this.itemStack = itemStack;
         ItemRarity itemRarityFromDB = new RarityService(AddictzoneChests.getInstance()).getItemRarity(itemRarity);
-        this.itemRarity = itemRarityFromDB != null ? itemRarityFromDB : new ItemRarity("§7Unbekannter Seltenheitstyp!", "§7Unbekannter Seltenheitstyp!", "", 1);
+        this.itemRarity = itemRarityFromDB != null ? itemRarityFromDB : new ItemRarity("§7Unbekannter Seltenheitstyp!", "§7Unbekannter Seltenheitstyp!", "", 1, false);
     }
 
     public ItemStack getItemStack(){
@@ -58,7 +53,7 @@ public class ChestItem {
         }
 
         ItemRarity itemRarityFromDB = new RarityService(AddictzoneChests.getInstance()).getItemRarity(document.getString("itemRarityIdentifier"));
-        this.itemRarity = itemRarityFromDB != null ? itemRarityFromDB : new ItemRarity("§7Unbekannter Seltenheitstyp!", "§7Unbekannter Seltenheitstyp!", "", 10);
+        this.itemRarity = itemRarityFromDB != null ? itemRarityFromDB : new ItemRarity("§7Unbekannter Seltenheitstyp!", "§7Unbekannter Seltenheitstyp!", "", 1, false);
 
         return this;
     }

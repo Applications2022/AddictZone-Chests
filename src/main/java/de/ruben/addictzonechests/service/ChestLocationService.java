@@ -12,33 +12,26 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ChestLocationService {
+public record ChestLocationService(AddictzoneChests plugin) {
 
-    private AddictzoneChests plugin;
-
-    public ChestLocationService(AddictzoneChests plugin) {
-        this.plugin = plugin;
-    }
-
-    public void addChestLocation(String chest, Location location){
+    public void addChestLocation(String chest, Location location) {
         addChestLocation(new ChestLocation(UUID.randomUUID(), location, chest));
     }
 
-    public void addChestLocation(ChestLocation chestLocation){
+    public void addChestLocation(ChestLocation chestLocation) {
         getCollection().insertOne(chestLocation.toDocument());
     }
 
-    public void deleteChestLocation(UUID uuid){
+    public void deleteChestLocation(UUID uuid) {
         getCollection().deleteOne(Filters.eq("_id", uuid));
     }
 
-    public List<ChestLocation> getLocations(){
+    public List<ChestLocation> getLocations() {
         return getCollection().find().into(new ArrayList<>()).stream().map(document -> new ChestLocation().fromDocument(document)).collect(Collectors.toList());
     }
 
 
-
-    private MongoCollection<Document> getCollection(){
+    private MongoCollection<Document> getCollection() {
         return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_ChestLocations");
     }
 }

@@ -5,31 +5,38 @@ import com.mongodb.client.model.Filters;
 import de.ruben.addictzonechests.AddictzoneChests;
 import de.ruben.addictzonechests.model.chest.Chest;
 import de.ruben.addictzonechests.model.chest.ChestItem;
+import de.ruben.xdevapi.XDevApi;
 import org.bson.Document;
+import org.cache2k.Cache;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-public class ChestService {
+public record ChestService(AddictzoneChests plugin) {
 
-    private AddictzoneChests plugin;
-
-    public ChestService(AddictzoneChests plugin) {
-        this.plugin = plugin;
-    }
-
-    public void createChest(String name, String prefix){
+    public void createChest(String name, String prefix) {
         Chest chest = new Chest(UUID.randomUUID(), name, prefix, new ArrayList<>());
 
-        if(!existChest(name)){
-            getCollection().insertOne(chest.toDocument());
+        if (!existChest(name)) {
+            getCache().putIfAbsent(name, chest);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                getCollection().insertOne(chest.toDocument());
+            });
         }
     }
 
-    public void addChestItem(String name, ChestItem chestItem){
-        if(existChest(name)){
+    public void deleteChest(String name) {
+        if (existChest(name)) {
+            getCache().remove(name);
+
+            getCollection().deleteOne(Filters.eq("name", name));
+        }
+    }
+
+    public void addChestItem(String name, ChestItem chestItem) {
+        if (existChest(name)) {
 
             Chest chest = getChest(name);
 
@@ -39,13 +46,17 @@ public class ChestService {
 
             chest.setItems(items);
 
-            getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+            getCache().replace(name, chest);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+            });
 
         }
     }
 
-    public void removeChestItem(String name, ChestItem chestItem){
-        if(existChest(name)){
+    public void removeChestItem(String name, ChestItem chestItem) {
+        if (existChest(name)) {
 
             Chest chest = getChest(name);
 
@@ -55,13 +66,17 @@ public class ChestService {
 
             chest.setItems(items);
 
-            getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+            getCache().replace(name, chest);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+            });
 
         }
     }
 
-    public void removeChestItem(String name, UUID id){
-        if(existChest(name)){
+    public void removeChestItem(String name, UUID id) {
+        if (existChest(name)) {
 
             Chest chest = getChest(name);
 
@@ -71,27 +86,43 @@ public class ChestService {
 
             chest.setItems(items);
 
-            getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+            getCache().replace(name, chest);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                getCollection().replaceOne(Filters.eq("name", name), chest.toDocument());
+            });
 
         }
     }
 
-    public List<Chest> getChests(){
-        return getCollection().find().into(new ArrayList<>()).stream().map(document -> new Chest().fromDocument(document)).collect(Collectors.toList());
+    public List<Chest> getChests() {
+        return getCache().asMap().values().stream().toList();
     }
 
-    public Chest getChest(String name){
-        if(existChest(name)){
-            return new Chest().fromDocument(getCollection().find(Filters.eq("name", name)).first());
+    public Chest getChest(String name) {
+        if (existChest(name)) {
+//            return new Chest().fromDocument(getCollection().find(Filters.eq("name", name)).first());
+            return getCache().get(name);
         }
         return null;
     }
 
-    public boolean existChest(String name){
+    public boolean existChest(String name) {
         return getCollection().find(Filters.eq("name", name)).first() != null;
     }
 
-    public MongoCollection<Document> getCollection(){
+    public void loadChestsIntoCache() {
+        getCollection().find().into(new ArrayList<>()).forEach(document -> {
+            Chest chest = new Chest().fromDocument(document);
+            getCache().put(chest.getName(), chest);
+        });
+    }
+
+    public MongoCollection<Document> getCollection() {
         return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_Chest");
+    }
+
+    public Cache<String, Chest> getCache() {
+        return plugin.getChestCache();
     }
 }

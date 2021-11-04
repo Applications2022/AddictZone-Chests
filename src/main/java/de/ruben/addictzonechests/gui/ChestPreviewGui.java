@@ -12,7 +12,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -26,7 +25,7 @@ public class ChestPreviewGui extends Gui {
         this.setItem(13,
                 ItemBuilder
                 .from(block.getType())
-                .name(Component.text(chest.getPrefix()+" §bKiste §8(klick)"))
+                .name(Component.text(chest.getPrefix()+" §bKiste"))
                 .lore(
                         Component.text(" "),
                         Component.text("§7Du besitzt §b"+ XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(new KeyService(plugin).getKeys(player.getUniqueId(), chest.getName())) +" §7Schlüssel!")
@@ -44,7 +43,7 @@ public class ChestPreviewGui extends Gui {
 
                     }else{
                         this.close(player);
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("preifix")+"§cDazu hast nicht genug Schlüssel!");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§cDazu hast nicht genug Schlüssel!");
                     }
 
                 })
@@ -54,10 +53,10 @@ public class ChestPreviewGui extends Gui {
                 ItemBuilder
                         .from(Material.ENDER_EYE)
                         .name(Component.text("§bVorschau"))
-                        .asGuiItem(event -> {
-                            new ItemPreviewGui(plugin, player, chest, block).open(player);
-                        })
+                        .asGuiItem(event -> new ItemPreviewGui(plugin, player, chest, block).open(player))
                 );
+
+        this.setDefaultTopClickAction(event -> event.setCancelled(true));
 
     }
 }

@@ -1,7 +1,7 @@
 package de.ruben.addictzonechests.command;
 
-import com.google.gson.Gson;
 import de.ruben.addictzonechests.AddictzoneChests;
+import de.ruben.addictzonechests.animation.ArmorstandAnimation;
 import de.ruben.addictzonechests.gui.AnimationGui;
 import de.ruben.addictzonechests.gui.ChestHistoryGui;
 import de.ruben.addictzonechests.gui.EditChestGui;
@@ -33,9 +33,9 @@ import java.util.UUID;
 
 public class KistenCommand implements CommandExecutor {
 
-    private AddictzoneChests plugin;
-    private RarityService rarityService;
-    private ChestService chestService;
+    private final AddictzoneChests plugin;
+    private final RarityService rarityService;
+    private final ChestService chestService;
 
     public KistenCommand(AddictzoneChests plugin) {
         this.plugin = plugin;
@@ -85,6 +85,14 @@ public class KistenCommand implements CommandExecutor {
 
                 player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Block erfolgreich entfernt!");
 
+            }else if(args[0].equalsIgnoreCase("listrarities")){
+
+                player.sendMessage("§8§m-------------------------------------------------");
+                player.sendMessage(" ");
+                rarityService.getItemRarities().forEach(itemRarity -> player.sendMessage("§7- "+ChatColor.translateAlternateColorCodes('&', itemRarity.getPrefix())+" §7(§b"+itemRarity.getWeight()+"§7)"));
+                player.sendMessage(" ");
+                player.sendMessage("§8§m-------------------------------------------------");
+
             }else{
                 sendHelpMessage(player);
             }
@@ -128,6 +136,7 @@ public class KistenCommand implements CommandExecutor {
                         Chest chest = chestService.getChest(name);
 
                         Bukkit.getScheduler().runTask(plugin, () -> new AnimationGui(plugin, player, chest).open(player));
+//                        new ArmorstandAnimation(plugin, null, null, player.getLocation(), 0.00025).animate();
 
                     }
                 });
@@ -209,11 +218,12 @@ public class KistenCommand implements CommandExecutor {
             }else {
                 sendHelpMessage(player);
             }
-        }else if(args.length == 4){
+        }else if(args.length == 5){
 
             if(args[0].equalsIgnoreCase("createrarity")){
                 String name = args[1].replace("-", " ");
                 String prefix = args[2];
+                Boolean broadcast = Boolean.parseBoolean(args[3]);
 
                 if(!isInteger(args[3])){
                     player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe einen Integer als weight an!");
@@ -222,15 +232,10 @@ public class KistenCommand implements CommandExecutor {
 
                 Integer weight = Integer.parseInt(args[3]);
 
-                new RarityService(plugin).createItemRarity(name, prefix, "", weight);
+                new RarityService(plugin).createItemRarity(name, prefix, "", weight, broadcast);
 
                 player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast erfolgreich die Seltenheit §b"+name+" §7mit der Weight §b"+weight+" §7erstellt!");
-            }else{
-                sendHelpMessage(player);
-            }
-
-        }else if(args.length == 5){
-            if(args[0].equalsIgnoreCase("key")){
+            } else if(args[0].equalsIgnoreCase("key")){
                 String action = args[1];
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[2]);
 
@@ -240,35 +245,31 @@ public class KistenCommand implements CommandExecutor {
                 }
 
                 Chest chest = chestService.getChest(args[3]);
-                Integer amount = Integer.valueOf(args[4]);
+                int amount = Integer.parseInt(args[4]);
 
-                switch (action.toLowerCase()){
-                    case "add":
+                switch (action.toLowerCase()) {
+                    case "add" -> {
                         new KeyService(plugin).addKey(offlinePlayer.getUniqueId(), chest.getName(), amount);
-
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast dem Spieler §b"+offlinePlayer.getName()+" §7erfolgreich §b"+amount+"x "+chest.getPrefix()+" §7Kiste(n) §7hinzugefügt!");
-
-                        if(offlinePlayer.isOnline()){
-                            offlinePlayer.getPlayer().sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§b"+player.getName()+" §7hat dir §b"+amount+"x "+chest.getPrefix()+" §7Kiste(n) hinzugefügt!");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§7Du hast dem Spieler §b" + offlinePlayer.getName() + " §7erfolgreich §b" + amount + "x " + chest.getPrefix() + " §7Kiste(n) §7hinzugefügt!");
+                        if (offlinePlayer.isOnline()) {
+                            offlinePlayer.getPlayer().sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§b" + player.getName() + " §7hat dir §b" + amount + "x " + chest.getPrefix() + " §7Kiste(n) hinzugefügt!");
                         }
-                        break;
-                    case "set":
+                    }
+                    case "set" -> {
                         new KeyService(plugin).setKey(offlinePlayer.getUniqueId(), chest.getName(), amount);
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast die "+chest.getPrefix()+" §7Kisten von §b"+offlinePlayer.getName()+" §7erfolgreich auf §b"+amount+" §7gesetzt!");
-                        if(offlinePlayer.isOnline()){
-                            offlinePlayer.getPlayer().sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§b"+player.getName()+" §7hat deine §b"+chest.getPrefix()+" §7Kiste(n) auf §b"+amount+" §7gesetzt!");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§7Du hast die " + chest.getPrefix() + " §7Kisten von §b" + offlinePlayer.getName() + " §7erfolgreich auf §b" + amount + " §7gesetzt!");
+                        if (offlinePlayer.isOnline()) {
+                            offlinePlayer.getPlayer().sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§b" + player.getName() + " §7hat deine §b" + chest.getPrefix() + " §7Kiste(n) auf §b" + amount + " §7gesetzt!");
                         }
-                        break;
-                    case "remove":
+                    }
+                    case "remove" -> {
                         new KeyService(plugin).removeKey(offlinePlayer.getUniqueId(), chest.getName(), amount);
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast dem Spieler §b"+offlinePlayer.getName()+" §7erfolgreich §b"+amount+"x "+chest.getPrefix()+" §7Kiste(n) §7entfernt!");
-                        if(offlinePlayer.isOnline()){
-                            offlinePlayer.getPlayer().sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§b"+player.getName()+" §7hat dir §b"+amount+"x "+chest.getPrefix()+" §7Kiste(n) entfernt!");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§7Du hast dem Spieler §b" + offlinePlayer.getName() + " §7erfolgreich §b" + amount + "x " + chest.getPrefix() + " §7Kiste(n) §7entfernt!");
+                        if (offlinePlayer.isOnline()) {
+                            offlinePlayer.getPlayer().sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§b" + player.getName() + " §7hat dir §b" + amount + "x " + chest.getPrefix() + " §7Kiste(n) entfernt!");
                         }
-                        break;
-                    default:
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe §badd, set §7oder §bremove §7als Aktion an!");
-                        break;
+                    }
+                    default -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§7Bitte gebe §badd, set §7oder §bremove §7als Aktion an!");
                 }
             }else{
                 sendHelpMessage(player);
@@ -281,10 +282,10 @@ public class KistenCommand implements CommandExecutor {
     }
 
     private void sendHelpMessage(Player player){
-        player.sendMessage("§7§m-------------------------------------------------");
+        player.sendMessage("§8§m--------------------------------------------------");
         player.sendMessage(" ");
-        player.sendMessage("§7Benutze: §b/kisten createRarity <name> <prefix> <weight>");
-        player.sendMessage("§7Benutze: §b/kisten key add|set|remove <name> <amount>");
+        player.sendMessage("§7Benutze: §b/kisten createRarity <name> <prefix> <weight> <broadcast>");
+        player.sendMessage("§7Benutze: §b/kisten key add|set|remove <name> <kiste> <amount>");
         player.sendMessage("§7Benutze: §b/kisten createChest <name> <prefix>");
         player.sendMessage("§7Benutze: §b/kisten setItem <rarity>");
         player.sendMessage("§7Benutze: §b/kisten deleteRarity <name>");
@@ -294,16 +295,15 @@ public class KistenCommand implements CommandExecutor {
         player.sendMessage("§7Benutze: §b/kisten testanimation <name>");
         player.sendMessage("§7Benutze: §b/kisten edit");
         player.sendMessage("§7Benutze: §b/kisten deletelocation");
+        player.sendMessage("§7Benutze: §b/kisten listrarities");
         player.sendMessage(" ");
-        player.sendMessage("§7§m-------------------------------------------------");
+        player.sendMessage("§8§m--------------------------------------------------");
     }
 
     public static boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
-        } catch(NumberFormatException e) {
-            return false;
-        } catch(NullPointerException e) {
+        } catch(NumberFormatException | NullPointerException e) {
             return false;
         }
         return true;

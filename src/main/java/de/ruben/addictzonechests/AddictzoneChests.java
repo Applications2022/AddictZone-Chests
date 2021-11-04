@@ -6,7 +6,12 @@ import de.ruben.addictzonechests.command.KistenCommand;
 import de.ruben.addictzonechests.command.VoucherCommand;
 import de.ruben.addictzonechests.listener.BlockKlickListener;
 import de.ruben.addictzonechests.listener.DefaultChestRewardListener;
+import de.ruben.addictzonechests.listener.JoinQuitListener;
+import de.ruben.addictzonechests.model.chest.Chest;
+import de.ruben.addictzonechests.model.chest.ItemRarity;
 import de.ruben.addictzonechests.service.ChestLocationService;
+import de.ruben.addictzonechests.service.ChestService;
+import de.ruben.addictzonechests.service.RarityService;
 import de.ruben.xdevapi.XDevApi;
 import de.ruben.xdevapi.storage.MongoDBStorage;
 import net.luckperms.api.LuckPerms;
@@ -18,7 +23,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.cache2k.Cache;
+import org.cache2k.Cache2kBuilder;
 
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -32,14 +41,40 @@ public final class AddictzoneChests extends JavaPlugin {
 
     private ScheduledExecutorService executorService;
 
+    private Cache<String, ItemRarity> rarityCache;
+
+    private Cache<UUID, Map> keyCache;
+
+    private Cache<String, Chest> chestCache;
+
     @Override
     public void onEnable() {
-        this.instance = this;
+        instance = this;
         this.luckperms =  LuckPermsProvider.get();
 //        this.mongoDBStorage = new MongoDBStorage(XDevApi.getInstance(), "localhost", "Currency", 27017, MongoClientOptions.builder().codecRegistry(CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry())).build());
         this.mongoDBStorage = new MongoDBStorage(XDevApi.getInstance(), 10, "localhost", "Currency", 27017, "currency", "wrgO4FTbV6UyLwtMzfsp", MongoClientOptions.builder().codecRegistry(CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry())).build());
 
         this.executorService = Executors.newScheduledThreadPool(5);
+        this.rarityCache = Cache2kBuilder
+                        .of(String.class, ItemRarity.class)
+                        .name("rarityCache")
+                        .eternal(true)
+                        .entryCapacity(150)
+                        .build();
+
+        this.keyCache = Cache2kBuilder
+                .of(UUID.class, Map.class)
+                .name("keyCache")
+                .eternal(true)
+                .entryCapacity(150)
+                .build();
+
+        this.chestCache = Cache2kBuilder
+                .of(String.class, Chest.class)
+                .name("chestCache")
+                .eternal(true)
+                .entryCapacity(150)
+                .build();
 
         mongoDBStorage.connect();
 
@@ -48,6 +83,7 @@ public final class AddictzoneChests extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new DefaultChestRewardListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BlockKlickListener(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinQuitListener(this), this);
 
         new ChestLocationService(this).getLocations().forEach(chestLocation -> {
             Location location = chestLocation.getLocation();
@@ -61,24 +97,17 @@ public final class AddictzoneChests extends JavaPlugin {
             }
         });
 
-//        new RarityService(this).createItemRarity("normal", "§7Normal", "Normales Item!", 100);
-//
-//        for(int i = 0; i < 10; ++i){
-//
-//            new ChestService(this).createChest("Test #"+i);
-//
-//            for(int y = 0; y < 100; ++y){
-//                new ChestService(this).addChestItem("Test #"+i, new ChestItem(UUID.randomUUID(), ItemBuilder.from(Material.ACACIA_SIGN).name(Component.text("Hi Nr."+y)).build().serialize(), "normal"));
-//            }
-//        }
-
+        new RarityService(this).loadRaritiesIntoCache();
+        new ChestService(this).loadChestsIntoCache();
 
 
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        getRarityCache().clearAndClose();
+        getKeyCache().clearAndClose();
+        getChestCache().clearAndClose();
     }
 
     public MongoDBStorage getMongoDBStorage() {
@@ -95,5 +124,17 @@ public final class AddictzoneChests extends JavaPlugin {
 
     public LuckPerms getLuckperms() {
         return luckperms;
+    }
+
+    public Cache<String, ItemRarity> getRarityCache() {
+        return rarityCache;
+    }
+
+    public Cache<UUID, Map> getKeyCache() {
+        return keyCache;
+    }
+
+    public Cache<String, Chest> getChestCache() {
+        return chestCache;
     }
 }

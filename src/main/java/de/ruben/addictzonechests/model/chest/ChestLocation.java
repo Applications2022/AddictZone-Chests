@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.bson.Document;
 import org.bukkit.Location;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 

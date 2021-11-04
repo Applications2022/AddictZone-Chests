@@ -29,22 +29,22 @@ public class VoucherCommand implements CommandExecutor {
         }
 
         if(args.length >= 4 && args[0].equalsIgnoreCase("create") && args[1].equalsIgnoreCase("command")){
-            boolean console = Boolean.valueOf(args[2]);
+            boolean console = Boolean.parseBoolean(args[2]);
 
-            String command = "";
+            StringBuilder command = new StringBuilder();
 
             for(int i = 3; i < args.length; i++){
-                command += args[i]+" ";
+                command.append(args[i]).append(" ");
             }
 
             player.getInventory().setItemInMainHand(
-                    voucherService.setCommandVoucher(player.getInventory().getItemInMainHand(),command, console)
+                    voucherService.setCommandVoucher(player.getInventory().getItemInMainHand(), command.toString(), console)
             );
 
             player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
         }else if(args.length == 3){
             if(args[0].equalsIgnoreCase("create") && args[1].equalsIgnoreCase("money")){
-                Double money = Double.valueOf(args[2]);
+                double money = Double.parseDouble(args[2]);
 
                 if (!itemSatckIsValid(player)) return true;
 
@@ -61,7 +61,7 @@ public class VoucherCommand implements CommandExecutor {
             if(args[0].equalsIgnoreCase("create")) {
                 if (args[1].equalsIgnoreCase("chest")) {
                     String chest = args[2];
-                    Integer amount = Integer.valueOf(args[3]);
+                    int amount = Integer.parseInt(args[3]);
 
                     if (!itemSatckIsValid(player)) return true;
 
@@ -72,12 +72,24 @@ public class VoucherCommand implements CommandExecutor {
                     player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
                 } else if(args[1].equalsIgnoreCase("perm")){
                     String permission = args[2];
-                    Integer compensation = Integer.valueOf(args[3]);
+                    int compensation = Integer.parseInt(args[3]);
 
                     if (!itemSatckIsValid(player)) return true;
 
                     player.getInventory().setItemInMainHand(
                             voucherService.setPermissionVoucher(player.getInventory().getItemInMainHand(), permission, compensation)
+                    );
+
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
+
+                }else if(args[1].equalsIgnoreCase("rank")){
+                    String rank = args[2];
+                    int compensation = Integer.parseInt(args[3]);
+
+                    if (!itemSatckIsValid(player)) return true;
+
+                    player.getInventory().setItemInMainHand(
+                            voucherService.setRankVoucher(player.getInventory().getItemInMainHand(), rank, compensation)
                     );
 
                     player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
@@ -94,9 +106,9 @@ public class VoucherCommand implements CommandExecutor {
                 if (!itemSatckIsValid(player)) return true;
 
                 String permissionprefix = args[2];
-                Integer levelIncrease = Integer.valueOf(args[3]);
-                Integer maxLevel = Integer.valueOf(args[4]);
-                Integer compensation = Integer.valueOf(args[5]);
+                int levelIncrease = Integer.parseInt(args[3]);
+                int maxLevel = Integer.parseInt(args[4]);
+                int compensation = Integer.parseInt(args[5]);
 
                 player.getInventory().setItemInMainHand(
                         voucherService.setLevelPermissionVoucher(player.getInventory().getItemInMainHand(), permissionprefix, levelIncrease, maxLevel, compensation)
@@ -133,6 +145,7 @@ public class VoucherCommand implements CommandExecutor {
         player.sendMessage(" ");
         player.sendMessage("§7Benutze: §b/voucher create levelperm <permissionprefix> <increase> <maxlevel> <compensation>");
         player.sendMessage("§7Benutze: §b/voucher create perm <permission> <compensation>");
+        player.sendMessage("§7Benutze: §b/voucher create rank <rank> <compensation>");
         player.sendMessage("§7Benutze: §b/voucher create command <console> <command>");
         player.sendMessage("§7Benutze: §b/voucher create chest <type> <amount>");
         player.sendMessage("§7Benutze: §b/voucher create money <money>");

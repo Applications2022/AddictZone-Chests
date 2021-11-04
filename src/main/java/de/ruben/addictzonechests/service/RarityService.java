@@ -1,54 +1,57 @@
 package de.ruben.addictzonechests.service;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 import de.ruben.addictzonechests.AddictzoneChests;
 import de.ruben.addictzonechests.model.chest.ItemRarity;
 import de.ruben.xdevapi.XDevApi;
 import org.bson.Document;
-import org.bukkit.Bukkit;
+import org.cache2k.Cache;
 
-public class RarityService {
+import java.util.ArrayList;
+import java.util.Collection;
 
-    private AddictzoneChests plugin;
+public record RarityService(AddictzoneChests plugin) {
 
-    public RarityService(AddictzoneChests plugin) {
-        this.plugin = plugin;
-    }
+    public void createItemRarity(String name, String prefix, String message, Integer weight, Boolean broadcast) {
 
-    public ItemRarity createItemRarity(String name, String prefix, String message, Integer weight){
-
-        if(existItemRarity(name)){
-            return getItemRarity(name);
+        if (existItemRarity(name)) {
+            getItemRarity(name);
+            return;
         }
 
-        ItemRarity itemRarity = new ItemRarity(name, prefix, message, weight);
+        ItemRarity itemRarity = new ItemRarity(name, prefix, message, weight, broadcast);
 
         getCollection().insertOne(itemRarity.toDocument());
-
-        return itemRarity;
+        getCache().putIfAbsent(name, itemRarity);
 
     }
 
-    public void deleteItemRarity(String name){
-        if(existItemRarity(name)){
+    public void deleteItemRarity(String name) {
+        if (existItemRarity(name)) {
+            getCache().remove(name);
             getCollection().deleteOne(getItemRarity(name).toDocument());
         }
     }
 
-    public void deleteItemRarityAndFormatItems(String name){
-        if(existItemRarity(name)){
+    public Collection<ItemRarity> getItemRarities() {
+        return getCache().asMap().values();
+    }
+
+    public void deleteItemRarityAndFormatItems(String name) {
+        if (existItemRarity(name)) {
 
             XDevApi.getInstance().getxScheduler().async(() -> {
                 ItemRarity itemRarity = getItemRarity(name);
 
                 new ChestService(plugin).getChests().forEach(chest -> {
                     chest.getItems().forEach(chestItem -> {
-                        if(chestItem.getItemRarity().getName().equals(itemRarity.getName())){
+                        if (chestItem.getItemRarity().getName().equals(itemRarity.getName())) {
                             new ChestService(plugin).removeChestItem(chest.getName(), chestItem);
                         }
                     });
                 });
+
+                getCache().remove(name);
 
                 getCollection().deleteOne(getItemRarity(name).toDocument());
             });
@@ -56,14 +59,25 @@ public class RarityService {
     }
 
     public ItemRarity getItemRarity(String name) {
-        return new ItemRarity().fromDocument(getCollection().find(Filters.eq("_id", name)).first());
+        return getCache().get(name);
     }
 
-    public boolean existItemRarity(String identifier){
-        return getCollection().find(Filters.eq("_id", identifier)).first() != null;
+    public boolean existItemRarity(String identifier) {
+        return getCache().containsKey(identifier);
     }
 
-    private MongoCollection<Document> getCollection(){
+    public void loadRaritiesIntoCache() {
+        getCollection().find().into(new ArrayList<>()).forEach(document -> {
+            ItemRarity itemRarity = new ItemRarity().fromDocument(document);
+            getCache().putIfAbsent(itemRarity.getName(), itemRarity);
+        });
+    }
+
+    private MongoCollection<Document> getCollection() {
         return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_Rarity");
+    }
+
+    private Cache<String, ItemRarity> getCache() {
+        return plugin.getRarityCache();
     }
 }

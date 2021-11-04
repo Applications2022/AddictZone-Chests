@@ -12,7 +12,6 @@ import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -72,11 +71,9 @@ public class LevelPermissionVoucher implements Voucher{
         XDevApi.getInstance().getxScheduler().async(() -> {
 
             if(getHighestPermission(player) >= maxLevel){
-                new CashService().addValue(player.getUniqueId(), compensation, cashAccount -> {
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du kannst nicht nochmal §b"
-                            +(itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : itemStack.getType().name().toLowerCase())+
-                            " §7gewinnen, deswegen hast du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7erstattet bekommen!");
-                });
+                new CashService().addValue(player.getUniqueId(), compensation, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du kannst nicht nochmal §b"
+                        +(itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : itemStack.getType().name().toLowerCase())+
+                        " §7gewinnen, deswegen hast du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7erstattet bekommen!"));
             }else{
                 User user = AddictzoneChests.getInstance().getLuckperms().getPlayerAdapter(Player.class).getUser(player);
                 user.data().add(PermissionNode.builder(permissionPrefix+(getHighestPermission(player)+levelIncrease)).build());

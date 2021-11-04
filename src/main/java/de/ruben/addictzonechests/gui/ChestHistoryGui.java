@@ -32,12 +32,12 @@ public class ChestHistoryGui extends Gui {
 
     private final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm");
 
-    private AddictzoneChests plugin;
-    private PaginatedArrayList paginatedArrayList;
-    private ChestHistoryService chestHistoryService;
-    private ChestService chestService;
-    private SortType sortType;
-    private UUID target;
+    private final AddictzoneChests plugin;
+    private final PaginatedArrayList paginatedArrayList;
+    private final ChestHistoryService chestHistoryService;
+    private final ChestService chestService;
+    private final SortType sortType;
+    private final UUID target;
 
     public ChestHistoryGui(AddictzoneChests plugin, Player player, SortType sortType) {
         super(6, "§8Kisten Historie", Set.of(InteractionModifier.PREVENT_ITEM_SWAP, InteractionModifier.PREVENT_ITEM_TAKE, InteractionModifier.PREVENT_ITEM_PLACE));
@@ -52,6 +52,8 @@ public class ChestHistoryGui extends Gui {
         this.disableAllInteractions();
         this.getFiller().fillBorder(ItemPreset.fillItem(inventoryClickEvent -> {}));
         this.setItem(49, ItemPreset.closeItem(inventoryClickEvent -> this.close(player)));
+
+        this.setDefaultTopClickAction(event -> event.setCancelled(true));
     }
 
     public ChestHistoryGui(AddictzoneChests plugin, Player player, UUID target, SortType sortType) {
@@ -69,18 +71,18 @@ public class ChestHistoryGui extends Gui {
         this.getFiller().fillBorder(ItemPreset.fillItem(inventoryClickEvent -> {}));
         this.setItem(49, ItemPreset.closeItem(inventoryClickEvent -> this.close(player)));
 
+        this.setDefaultTopClickAction(event -> event.setCancelled(true));
     }
 
     @Override
     public void open(@NotNull HumanEntity player) {
-        super.open(player);
-
         setPageItems((Player) player, 0);
+        super.open(player);
     }
 
     public void open(@NotNull HumanEntity player, int page) {
-        super.open(player);
         setPageItems((Player) player, page);
+        super.open(player);
     }
 
 
@@ -107,8 +109,8 @@ public class ChestHistoryGui extends Gui {
 
             List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
             lore.add(Component.text(" "));
+            lore.add(Component.text("§7➥ Gewinntyp: §b"+(new VoucherService().isVoucher(chestItem.getItemStack()) ? "Gutschein" : "Item")));
             lore.add(Component.text("§7➥ Seltenheit: "+ ChatColor.translateAlternateColorCodes('&', chestItem.getItemRarity().getPrefix())));
-            lore.add(Component.text("§7➥ Typ: §b"+(new VoucherService().isVoucher(chestItem.getItemStack()) ? "Gutschein" : "Item")));
             lore.add(Component.text("§7➥ Kiste: §b"+(chestService.existChest(chestHistoryEntry.getChest()) ? chestService.getChest(chestHistoryEntry.getChest()).getPrefix() : chestHistoryEntry.getChest())));
             lore.add(Component.text(" "));
             lore.add(Component.text("§8Gezogen am §b"+dateFormat.format(chestHistoryEntry.getDate())+"Uhr §8(vor"+timeString+")"));
@@ -148,30 +150,25 @@ public class ChestHistoryGui extends Gui {
 
 
     private List<ChestHistoryEntry> getChestHistorySorted(UUID uuid, SortType sortType){
-        switch (sortType){
-            case RARITY_ASCENDING:
-                return chestHistoryService.getHistory(uuid)
+        return switch (sortType) {
+            case RARITY_ASCENDING -> chestHistoryService.getHistory(uuid)
                     .stream()
                     .sorted(Comparator.comparing(o -> o.getWin().getItemRarity().getWeight()))
                     .collect(Collectors.toList());
-            case RARITY_DESCENDING:
-                return chestHistoryService.getHistory(uuid)
-                        .stream()
-                        .sorted((o1, o2) -> o2.getWin().getItemRarity().getWeight().compareTo(o1.getWin().getItemRarity().getWeight()))
-                        .collect(Collectors.toList());
-            case DATUM_ASCENDING:
-                return chestHistoryService.getHistory(uuid)
-                        .stream()
-                        .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
-                        .collect(Collectors.toList());
-            case DATUM_DESCENDING:
-                return chestHistoryService.getHistory(uuid)
-                        .stream()
-                        .sorted(Comparator.comparing(ChestHistoryEntry::getDate))
-                        .collect(Collectors.toList());
-            default:
-                return new ArrayList<>();
-        }
+            case RARITY_DESCENDING -> chestHistoryService.getHistory(uuid)
+                    .stream()
+                    .sorted((o1, o2) -> o2.getWin().getItemRarity().getWeight().compareTo(o1.getWin().getItemRarity().getWeight()))
+                    .collect(Collectors.toList());
+            case DATUM_ASCENDING -> chestHistoryService.getHistory(uuid)
+                    .stream()
+                    .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
+                    .collect(Collectors.toList());
+            case DATUM_DESCENDING -> chestHistoryService.getHistory(uuid)
+                    .stream()
+                    .sorted(Comparator.comparing(ChestHistoryEntry::getDate))
+                    .collect(Collectors.toList());
+            default -> new ArrayList<>();
+        };
 
     }
 
@@ -192,41 +189,39 @@ public class ChestHistoryGui extends Gui {
                 .asGuiItem(event -> {
 
 
-
-                    switch (sortType){
-                        case DATUM_ASCENDING:
+                    switch (sortType) {
+                        case DATUM_ASCENDING -> {
                             System.out.println("1");
-                            if(target == null){
+                            if (target == null) {
                                 new ChestHistoryGui(plugin, player, SortType.DATUM_DESCENDING).open(player, paginatedArrayList.getPageIndex());
-                            }else{
+                            } else {
                                 new ChestHistoryGui(plugin, player, target, SortType.DATUM_DESCENDING).open(player, paginatedArrayList.getPageIndex());
                             }
-                            break;
-
-                        case DATUM_DESCENDING:
+                        }
+                        case DATUM_DESCENDING -> {
                             System.out.println("2");
-                            if(target == null){
+                            if (target == null) {
                                 new ChestHistoryGui(plugin, player, SortType.RARITY_ASCENDING).open(player, paginatedArrayList.getPageIndex());
-                            }else{
+                            } else {
                                 new ChestHistoryGui(plugin, player, target, SortType.RARITY_ASCENDING).open(player, paginatedArrayList.getPageIndex());
                             }
-                            break;
-                        case RARITY_ASCENDING:
+                        }
+                        case RARITY_ASCENDING -> {
                             System.out.println("3");
-                            if(target == null){
+                            if (target == null) {
                                 new ChestHistoryGui(plugin, player, SortType.RARITY_DESCENDING).open(player, paginatedArrayList.getPageIndex());
-                            }else{
+                            } else {
                                 new ChestHistoryGui(plugin, player, target, SortType.RARITY_DESCENDING).open(player, paginatedArrayList.getPageIndex());
                             }
-                            break;
-                        case RARITY_DESCENDING:
+                        }
+                        case RARITY_DESCENDING -> {
                             System.out.println("4");
-                            if(target == null){
+                            if (target == null) {
                                 new ChestHistoryGui(plugin, player, SortType.DATUM_ASCENDING).open(player, paginatedArrayList.getPageIndex());
-                            }else{
+                            } else {
                                 new ChestHistoryGui(plugin, player, target, SortType.DATUM_ASCENDING).open(player, paginatedArrayList.getPageIndex());
                             }
-                            break;
+                        }
                     }
                 });
 
@@ -236,6 +231,6 @@ public class ChestHistoryGui extends Gui {
         DATUM_ASCENDING,
         DATUM_DESCENDING,
         RARITY_ASCENDING,
-        RARITY_DESCENDING;
+        RARITY_DESCENDING
     }
 }

@@ -3,130 +3,181 @@ package de.ruben.addictzonechests.service;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import de.ruben.addictzonechests.AddictzoneChests;
+import de.ruben.xdevapi.XDevApi;
 import org.bson.Document;
-import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.K;
+import org.bukkit.Bukkit;
+import org.cache2k.Cache;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class KeyService {
+public record KeyService(AddictzoneChests plugin) {
 
-    private AddictzoneChests plugin;
+    public void addKey(UUID uuid, String chest, int amount) {
 
-    public KeyService(AddictzoneChests plugin){
-        this.plugin = plugin;
-    }
+        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+            Document user = getUser(uuid);
 
-    public void addKey(UUID uuid, String chest, int amount){
+            Map<String, Integer> keys = user.get("keys", Map.class);
 
-        Document user = getUser(uuid);
-        Map<String, Integer> keys = user.get("keys", Map.class);
+            if (keys.containsKey(chest)) {
+                keys.replace(chest, keys.get(chest) + amount);
+            } else {
+                keys.put(chest, amount);
+            }
 
-        if(keys.containsKey(chest)){
-            keys.replace(chest, keys.get(chest)+amount);
-        }else{
-            keys.put(chest, amount);
+            getCache().replace(uuid, keys);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                user.replace("keys", keys);
+                getCollection().replaceOne(Filters.eq("_id", uuid), user);
+            });
+        } else {
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                Document user = getUser(uuid);
+
+                Map<String, Integer> keys = user.get("keys", Map.class);
+
+                if (keys.containsKey(chest)) {
+                    keys.replace(chest, keys.get(chest) + amount);
+                } else {
+                    keys.put(chest, amount);
+                }
+
+                user.replace("keys", keys);
+                getCollection().replaceOne(Filters.eq("_id", uuid), user);
+            });
         }
-
-        user.replace("keys", keys);
-
-        getCollection().replaceOne(Filters.eq("_id", uuid), user);
-
-//        Document user = getUser(uuid);
-//
-//        if(user.containsKey(chest)){
-//            user.append(chest, amount);
-//        }else{
-//            int currentAmount = user.getInteger(chest, 0);
-//            user.replace(chest, currentAmount+amount);
-//        }
-//
-//        getCollection().replaceOne(Filters.eq("_id",uuid), user);
     }
 
-    public void removeKey(UUID uuid, String chest, int amount){
+    public void removeKey(UUID uuid, String chest, int amount) {
+        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+            Document user = getUser(uuid);
 
-        Document user = getUser(uuid);
-        Map<String, Integer> keys = user.get("keys", Map.class);
+            Map<String, Integer> keys = user.get("keys", Map.class);
 
-        if(keys.containsKey(chest)){
-            keys.replace(chest, keys.get(chest)-amount);
-        }else{
-            keys.put(chest, 0);
+            if (keys.containsKey(chest)) {
+                keys.replace(chest, keys.get(chest) - amount);
+            } else {
+                keys.put(chest, 0);
+            }
+
+            getCache().replace(uuid, keys);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                user.replace("keys", keys);
+                getCollection().replaceOne(Filters.eq("_id", uuid), user);
+            });
+        } else {
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                Document user = getUser(uuid);
+
+                Map<String, Integer> keys = user.get("keys", Map.class);
+
+                if (keys.containsKey(chest)) {
+                    keys.replace(chest, keys.get(chest) - amount);
+                } else {
+                    keys.put(chest, 0);
+                }
+
+                user.replace("keys", keys);
+                getCollection().replaceOne(Filters.eq("_id", uuid), user);
+            });
         }
-
-        user.replace("keys", keys);
-
-        getCollection().replaceOne(Filters.eq("_id", uuid), user);
-//        Document user = getUser(uuid);
-//
-//        if(user.containsKey(chest)){
-//            user.append(chest, 0);
-//        }else{
-//            int currentAmount = user.getInteger(chest, 0);
-//            user.replace(chest, currentAmount-amount);
-//        }
-//
-//        getCollection().replaceOne(Filters.eq("_id", uuid), user);
     }
 
-    public void setKey(UUID uuid, String chest, int amount){
-        Document user = getUser(uuid);
-        Map<String, Integer> keys = user.get("keys", Map.class);
+    public void setKey(UUID uuid, String chest, int amount) {
 
-        if(keys.containsKey(chest)){
-            keys.replace(chest, amount);
-        }else{
-            keys.put(chest, amount);
+        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+            Document user = getUser(uuid);
+
+            Map<String, Integer> keys = user.get("keys", Map.class);
+
+            if (keys.containsKey(chest)) {
+                keys.replace(chest, amount);
+            } else {
+                keys.put(chest, amount);
+            }
+
+            getCache().replace(uuid, keys);
+
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                user.replace("keys", keys);
+                getCollection().replaceOne(Filters.eq("_id", uuid), user);
+            });
+        } else {
+            XDevApi.getInstance().getxScheduler().async(() -> {
+                Document user = getUser(uuid);
+
+                Map<String, Integer> keys = user.get("keys", Map.class);
+
+                if (keys.containsKey(chest)) {
+                    keys.replace(chest, amount);
+                } else {
+                    keys.put(chest, amount);
+                }
+
+                user.replace("keys", keys);
+                getCollection().replaceOne(Filters.eq("_id", uuid), user);
+            });
         }
-
-        user.replace("keys", keys);
-
-//        if(user.containsKey(chest)){
-//            user.append(chest, amount);
-//        }else{
-//            user.replace(chest, amount);
-//        }
-//
-        getCollection().replaceOne(Filters.eq("_id", uuid), user);
     }
 
-    public Integer getKeys(UUID uuid, String chest){
-
-//        if(!existUser(uuid)) createUser(uuid);
-//
-//        return getUser(uuid).getInteger(chest, 0);
+    public Integer getKeys(UUID uuid, String chest) {
         return getKeys(uuid).getOrDefault(chest, 0);
     }
 
-    public Map<String, Integer> getKeys(UUID uuid){
-        if(!existUser(uuid)) createUser(uuid);
+    public Map<String, Integer> getKeys(UUID uuid) {
         return getUser(uuid).get("keys", Map.class);
-
-//        Map<String, Integer> map = new HashMap<>();
-//
-//        user.forEach((s, o) -> map.put(s, (Integer) o));
-//
-//        return map;
     }
 
-    public Document getUser(UUID uuid){
-        if(!existUser(uuid)) createUser(uuid);
-        return getCollection().find(Filters.eq("_id", uuid)).first();
+    public Document getUser(UUID uuid) {
+        if (!existUser(uuid)) createUser(uuid);
+
+        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+            return new Document("_id", uuid).append("keys", getCache().get(uuid));
+        } else {
+            return getCollection().find(Filters.eq("_id", uuid)).first();
+        }
     }
 
-    public void createUser(UUID uuid){
+    public void loadUser(UUID uuid) {
+        if (getCollection().find(Filters.eq("_id", uuid)).first() == null) {
+            createUser(uuid);
+        } else {
+            Document user = getCollection().find(Filters.eq("_id", uuid)).first();
+            Map<String, Integer> keys = user.get("keys", Map.class);
+            getCache().put(uuid, keys);
+        }
+    }
+
+    public void removeUser(UUID uuid) {
+        getCache().remove(uuid);
+    }
+
+    public void createUser(UUID uuid) {
+        if (Bukkit.getOfflinePlayer(uuid).isOnline()) {
+            getCache().put(uuid, new HashMap<>());
+        }
         getCollection().insertOne(new Document("_id", uuid).append("keys", new HashMap<>()));
     }
 
-    public boolean existUser(UUID uuid){
-        return getCollection().find(Filters.eq("_id", uuid)).first() != null;
+    public boolean existUser(UUID uuid) {
+        if (!getCache().containsKey(uuid)) {
+            return getCollection().find(Filters.eq("_id", uuid)).first() != null;
+        } else {
+            return true;
+        }
     }
 
-    private MongoCollection<Document> getCollection(){
+    private MongoCollection<Document> getCollection() {
         return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_ChestKeys");
+    }
+
+    private Cache<UUID, Map> getCache() {
+
+        return plugin.getKeyCache();
     }
 
 }

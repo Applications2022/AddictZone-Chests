@@ -5,5 +5,6 @@ public enum VoucherType {
     LEVEL_PERMISSION(),
     COMMAND(),
     MONEY(),
-    CHEST();
+    CHEST(),
+    RANK()
 }

@@ -16,20 +16,15 @@ public class VoucherService {
 
         VoucherType voucherType = VoucherType.valueOf(new NBTItem(itemStack).getString("type"));
 
-        switch (voucherType) {
-            case CHEST:
-                return new ChestVoucher().fromItemStack(itemStack);
-            case COMMAND:
-                return new CommandVoucher().fromItemStack(itemStack);
-            case MONEY:
-                return new MoneyVoucher().fromItemStack(itemStack);
-            case LEVEL_PERMISSION:
-                return new LevelPermissionVoucher().fromItemStack(itemStack);
-            case PERMISSION:
-                return new PermissionVoucher().fromItemStack(itemStack);
-            default:
-                return null;
-        }
+        return switch (voucherType) {
+            case CHEST -> new ChestVoucher().fromItemStack(itemStack);
+            case COMMAND -> new CommandVoucher().fromItemStack(itemStack);
+            case MONEY -> new MoneyVoucher().fromItemStack(itemStack);
+            case LEVEL_PERMISSION -> new LevelPermissionVoucher().fromItemStack(itemStack);
+            case PERMISSION -> new PermissionVoucher().fromItemStack(itemStack);
+            case RANK -> new RankVoucher().fromItemStack(itemStack);
+            default -> null;
+        };
     }
 
     public ItemStack setChestVoucher(ItemStack itemStack, String chest, int amount){
@@ -50,6 +45,10 @@ public class VoucherService {
 
     public ItemStack setPermissionVoucher(ItemStack itemStack, String permission, int compensation){
         return new PermissionVoucher(UUID.randomUUID(), permission, compensation).toItemStack(itemStack);
+    }
+
+    public ItemStack setRankVoucher(ItemStack itemStack, String rank, int compensation){
+        return new RankVoucher(UUID.randomUUID(), rank, compensation).toItemStack(itemStack);
     }
 
 

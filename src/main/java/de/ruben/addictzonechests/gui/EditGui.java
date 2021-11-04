@@ -2,10 +2,7 @@ package de.ruben.addictzonechests.gui;
 
 import de.ruben.addictzonechests.AddictzoneChests;
 import de.ruben.addictzonechests.model.chest.Chest;
-import de.ruben.addictzonechests.model.chest.ChestItem;
 import de.ruben.addictzonechests.pagination.PaginatedArrayList;
-import de.ruben.addictzonechests.service.ChestService;
-import de.ruben.xdevapi.XDevApi;
 import de.ruben.xdevapi.custom.gui.ItemPreset;
 import de.tr7zw.nbtapi.NBTItem;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
@@ -16,21 +13,17 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public class EditGui extends Gui {
 
-    private AddictzoneChests plugin;
-    private PaginatedArrayList paginatedArrayList;
-    private List<Chest> chests;
+    private final AddictzoneChests plugin;
+    private final PaginatedArrayList paginatedArrayList;
+    private final List<Chest> chests;
 
     public EditGui(Player player, AddictzoneChests plugin, List<Chest> chests) {
         super(6, "Kisten Editieren - Übersicht", Set.of(InteractionModifier.PREVENT_ITEM_SWAP, InteractionModifier.PREVENT_ITEM_TAKE, InteractionModifier.PREVENT_ITEM_PLACE));
@@ -43,19 +36,19 @@ public class EditGui extends Gui {
         this.getFiller().fillBorder(ItemPreset.fillItem(inventoryClickEvent -> {}));
         this.setItem(49, ItemPreset.closeItem(inventoryClickEvent -> this.close(player)));
 
+        this.setDefaultTopClickAction(event -> event.setCancelled(true));
+
     }
 
     @Override
     public void open(@NotNull HumanEntity player) {
-        super.open(player);
-
         setPageItems((Player) player, 0);
+        super.open(player);
     }
 
     public void open(@NotNull HumanEntity player, int page) {
-        super.open(player);
-
         setPageItems((Player) player, page);
+        super.open(player);
     }
 
     private void setPageItems(Player player, int page){
@@ -81,15 +74,11 @@ public class EditGui extends Gui {
         }
 
         if(paginatedArrayList.isNextPageAvailable()){
-            this.setItem(50, ItemBuilder.from(Material.ARROW).name(Component.text("§9Nächste Seite")).asGuiItem(inventoryClickEvent -> {
-                new EditGui(player, plugin, chests).open(player, paginatedArrayList.getPageIndex()+1);
-            }));
+            this.setItem(50, ItemBuilder.from(Material.ARROW).name(Component.text("§9Nächste Seite")).asGuiItem(inventoryClickEvent -> new EditGui(player, plugin, chests).open(player, paginatedArrayList.getPageIndex()+1)));
         }
 
         if(paginatedArrayList.isPreviousPageAvailable()){
-            this.setItem(48, ItemBuilder.from(Material.ARROW).name(Component.text("§9Letzte Seite")).asGuiItem(inventoryClickEvent -> {
-                new EditGui(player, plugin, chests).open(player, paginatedArrayList.getPageIndex()-1);
-            }));
+            this.setItem(48, ItemBuilder.from(Material.ARROW).name(Component.text("§9Letzte Seite")).asGuiItem(inventoryClickEvent -> new EditGui(player, plugin, chests).open(player, paginatedArrayList.getPageIndex()-1)));
         }
 
         this.update();

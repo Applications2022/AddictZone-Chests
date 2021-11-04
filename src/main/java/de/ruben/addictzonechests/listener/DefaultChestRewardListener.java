@@ -5,6 +5,7 @@ import de.ruben.addictzonechests.event.ChestRewardEvent;
 import de.ruben.addictzonechests.model.chest.ChestItem;
 import de.ruben.addictzonechests.service.ChestHistoryService;
 import de.ruben.addictzonechests.service.VoucherService;
+import de.ruben.xdevapi.XDevApi;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -13,27 +14,23 @@ import org.bukkit.event.Listener;
 
 import java.util.Date;
 
-public class DefaultChestRewardListener implements Listener {
-
-    private AddictzoneChests plugin;
-
-    public DefaultChestRewardListener(AddictzoneChests plugin) {
-        this.plugin = plugin;
-    }
+public record DefaultChestRewardListener(AddictzoneChests plugin) implements Listener {
 
     @EventHandler
-    public void onChestRewardEvent(ChestRewardEvent event){
+    public void onChestRewardEvent(ChestRewardEvent event) {
         Player player = event.getPlayer();
         ChestItem chestItem = event.getWin();
 
-        new ChestHistoryService(plugin).addHistory(player.getUniqueId(), event.getChest().getPrefix(), new Date(System.currentTimeMillis()), chestItem);
-
-        if(new VoucherService().isVoucher(chestItem.getItemStack())){
+        if (new VoucherService().isVoucher(chestItem.getItemStack())) {
             new VoucherService().getVoucher(chestItem.getItemStack()).onWin(player, chestItem.getItemStack());
-        }else{
-            Bukkit.broadcast(Component.text(player.getName()+" hat gewonnen! Aus der Chest: "+event.getChest().getPrefix()));
+        } else {
+            Bukkit.broadcast(Component.text(player.getName() + " hat gewonnen! Aus der Chest: " + event.getChest().getPrefix()));
             player.getInventory().addItem(chestItem.getItemStack());
         }
+
+        XDevApi.getInstance().getxScheduler().async(() -> {
+            new ChestHistoryService(plugin).addHistory(player.getUniqueId(), event.getChest().getPrefix(), new Date(System.currentTimeMillis()), chestItem);
+        });
 
     }
 }

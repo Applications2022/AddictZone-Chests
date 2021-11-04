@@ -30,9 +30,7 @@ public class Chest {
 
         RandomUtil.RandomCollection<ChestItem> randomCollection = new RandomUtil.RandomCollection();
 
-        items.forEach(chestItem -> {
-            randomCollection.add(chestItem.getItemRarity().getWeight(), chestItem);
-        });
+        items.forEach(chestItem -> randomCollection.add(chestItem.getItemRarity().getWeight(), chestItem));
 
         return randomCollection;
 

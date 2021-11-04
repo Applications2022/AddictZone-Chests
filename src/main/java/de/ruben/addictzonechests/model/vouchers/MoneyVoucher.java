@@ -7,10 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftMagicNumbers;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -41,7 +44,19 @@ public class MoneyVoucher implements Voucher{
         nbtItem.setString("type", getVoucherType().name());
         nbtItem.setDouble("money", money);
 
-        return nbtItem.getItem();
+        itemStack = nbtItem.getItem();
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
+
+        lore.add(Component.text(" "));
+        lore.add(Component.text("§7➥ Du erhältst §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(money)+"€ §7auf dein §aKonto§7."));
+
+        itemMeta.lore(lore);
+
+        itemStack.setItemMeta(itemMeta);
+
+        return itemStack;
     }
 
     @Override
@@ -57,8 +72,6 @@ public class MoneyVoucher implements Voucher{
 
     @Override
     public void onWin(Player player, ItemStack itemStack) {
-        new CashService().addValue(player.getUniqueId(), money, cashAccount -> {
-            player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"Du hast §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(money)+"€ §7erstattet bekommen!");
-        });
+        new CashService().addValue(player.getUniqueId(), money, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"Du hast §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(money)+"€ §7erstattet bekommen!"));
     }
 }

@@ -3,7 +3,6 @@ package de.ruben.addictzonechests.gui;
 import de.ruben.addictzonechests.AddictzoneChests;
 import de.ruben.addictzonechests.model.chest.Chest;
 import de.ruben.addictzonechests.model.chest.ChestItem;
-import de.ruben.addictzonechests.service.ChestService;
 import de.ruben.addictzonechests.service.VoucherService;
 import de.ruben.xcore.pagination.PaginatedArrayList;
 import de.ruben.xdevapi.custom.gui.ItemPreset;
@@ -29,13 +28,13 @@ import java.util.stream.Collectors;
 
 public class ItemPreviewGui extends Gui {
 
-    private AddictzoneChests plugin;
-    private PaginatedArrayList paginatedArrayList;
-    private Chest chest;
-    private Block block;
+    private final AddictzoneChests plugin;
+    private final PaginatedArrayList paginatedArrayList;
+    private final Chest chest;
+    private final Block block;
 
     public ItemPreviewGui(AddictzoneChests plugin, Player player, Chest chest, Block block) {
-        super(6, "Kisten Vorschau §b- §8"+chest.getPrefix()+" §8Kiste", Set.of(InteractionModifier.PREVENT_ITEM_SWAP, InteractionModifier.PREVENT_ITEM_TAKE, InteractionModifier.PREVENT_ITEM_PLACE));
+        super(6, "§8"+chest.getPrefix()+" §8Kiste", Set.of(InteractionModifier.PREVENT_ITEM_SWAP, InteractionModifier.PREVENT_ITEM_TAKE, InteractionModifier.PREVENT_ITEM_PLACE));
 
         this.plugin = plugin;
         this.paginatedArrayList = new PaginatedArrayList(chest.getItems().stream()
@@ -48,22 +47,20 @@ public class ItemPreviewGui extends Gui {
         this.getFiller().fillBorder(ItemPreset.fillItem(inventoryClickEvent -> {}));
         this.setItem(49, ItemPreset.closeItem(inventoryClickEvent -> this.close(player)));
 
-        this.setItem(45, ItemBuilder.from(Material.ARROW).name(Component.text("§9Zurück")).asGuiItem(inventoryClickEvent -> {
-            new ChestPreviewGui(plugin, player, chest, block).open(player);
-        }));
+        this.setItem(45, ItemBuilder.from(Material.ARROW).name(Component.text("§9Zurück")).asGuiItem(inventoryClickEvent -> new ChestPreviewGui(plugin, player, chest, block).open(player)));
+
+        this.setDefaultTopClickAction(event -> event.setCancelled(true));
     }
 
     @Override
     public void open(@NotNull HumanEntity player) {
-        super.open(player);
-
         setPageItems((Player) player, 0);
+        super.open(player);
     }
 
     public void open(@NotNull HumanEntity player, int page) {
-        super.open(player);
-
         setPageItems((Player) player, page);
+        super.open(player);
     }
 
     private void setPageItems(Player player, int page){
@@ -85,8 +82,8 @@ public class ItemPreviewGui extends Gui {
 
             List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
             lore.add(Component.text(" "));
-            lore.add(Component.text("§7➥ Seltenheit: "+ ChatColor.translateAlternateColorCodes('&', chestItem.getItemRarity().getPrefix())));
-            lore.add(Component.text("§7➥ Typ: §b"+(new VoucherService().isVoucher(chestItem.getItemStack()) ? "Gutschein" : "Item")));
+            lore.add(Component.text("§7Gewinntyp: §b"+(new VoucherService().isVoucher(chestItem.getItemStack()) ? "Gutschein" : "Item")));
+            lore.add(Component.text("§7Seltenheit: "+ ChatColor.translateAlternateColorCodes('&', chestItem.getItemRarity().getPrefix())));
 
             itemMeta.lore(lore);
 
@@ -96,15 +93,11 @@ public class ItemPreviewGui extends Gui {
             this.addItem(ItemBuilder.from(itemStackToPlace).asGuiItem());
 
             if(paginatedArrayList.isNextPageAvailable()){
-                this.setItem(50, ItemBuilder.from(Material.ARROW).name(Component.text("§9Nächste Seite")).asGuiItem(inventoryClickEvent -> {
-                    new ItemPreviewGui(plugin, player, chest, block).open(player, paginatedArrayList.getPageIndex()+1);
-                }));
+                this.setItem(50, ItemBuilder.from(Material.ARROW).name(Component.text("§9Nächste Seite")).asGuiItem(inventoryClickEvent -> new ItemPreviewGui(plugin, player, chest, block).open(player, paginatedArrayList.getPageIndex()+1)));
             }
 
             if(paginatedArrayList.isPreviousPageAvailable()){
-                this.setItem(48, ItemBuilder.from(Material.ARROW).name(Component.text("§9Letzte Seite")).asGuiItem(inventoryClickEvent -> {
-                    new ItemPreviewGui(plugin, player, chest, block).open(player, paginatedArrayList.getPageIndex()-1);
-                }));
+                this.setItem(48, ItemBuilder.from(Material.ARROW).name(Component.text("§9Letzte Seite")).asGuiItem(inventoryClickEvent -> new ItemPreviewGui(plugin, player, chest, block).open(player, paginatedArrayList.getPageIndex()-1)));
             }
 
             this.update();
