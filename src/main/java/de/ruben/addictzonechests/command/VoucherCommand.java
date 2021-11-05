@@ -80,7 +80,7 @@ public class VoucherCommand implements CommandExecutor {
                             voucherService.setPermissionVoucher(player.getInventory().getItemInMainHand(), permission, compensation)
                     );
 
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt.");
 
                 }else if(args[1].equalsIgnoreCase("rank")){
                     String rank = args[2];
@@ -92,7 +92,7 @@ public class VoucherCommand implements CommandExecutor {
                             voucherService.setRankVoucher(player.getInventory().getItemInMainHand(), rank, compensation)
                     );
 
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt.");
 
                 }else{
                     sendHelpMessage(player);
@@ -114,7 +114,7 @@ public class VoucherCommand implements CommandExecutor {
                         voucherService.setLevelPermissionVoucher(player.getInventory().getItemInMainHand(), permissionprefix, levelIncrease, maxLevel, compensation)
                 );
 
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt!");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast den Gutschein erfolgreich auf das Item in deiner Hand gesetzt.");
             }else{
                 sendHelpMessage(player);
             }
@@ -129,27 +129,27 @@ public class VoucherCommand implements CommandExecutor {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
 
         if(itemStack == null || itemStack.getType() == Material.AIR){
-            player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte nehme ein Item in die Hand!");
+            player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte nehme ein Item in die Hand.");
             return false;
         }
 
         if(voucherService.isVoucher(itemStack)){
-            player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Dieses Item ist bereits ein Gutschein!");
+            player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Dieses Item ist bereits ein Gutschein.");
             return false;
         }
         return true;
     }
 
     private void sendHelpMessage(Player player){
-        player.sendMessage("§7§m-------------------------------------------------");
+        player.sendMessage("§8§m--------------------------------------------------");
         player.sendMessage(" ");
-        player.sendMessage("§7Benutze: §b/voucher create levelperm <permissionprefix> <increase> <maxlevel> <compensation>");
-        player.sendMessage("§7Benutze: §b/voucher create perm <permission> <compensation>");
-        player.sendMessage("§7Benutze: §b/voucher create rank <rank> <compensation>");
-        player.sendMessage("§7Benutze: §b/voucher create command <console> <command>");
-        player.sendMessage("§7Benutze: §b/voucher create chest <type> <amount>");
-        player.sendMessage("§7Benutze: §b/voucher create money <money>");
+        player.sendMessage("§7Benutze: §b/voucher create levelperm §7<§bpermissionprefix§7> <§blevel§7> <§bmaxlevel§7> <§bErstattung§7>");
+        player.sendMessage("§7Benutze: §b/voucher create perm §7<§bpermission§7> <§bErstattung§7>");
+        player.sendMessage("§7Benutze: §b/voucher create rank §7<§bRann§7> <§bErstattung§7>");
+        player.sendMessage("§7Benutze: §b/voucher create command §7<[§cboolean§7]§bconsole§7> <§bcommand§7>");
+        player.sendMessage("§7Benutze: §b/voucher create chest §7<§bKiste§7> <§bamount§7>");
+        player.sendMessage("§7Benutze: §b/voucher create money §7<§bamount§7>");
         player.sendMessage(" ");
-        player.sendMessage("§7§m-------------------------------------------------");
+        player.sendMessage("§8§m--------------------------------------------------");
     }
 }
