@@ -56,7 +56,7 @@ public class KistenCommand implements CommandExecutor {
 
         if(args.length == 1){
             if(args[0].equalsIgnoreCase("edit")){
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Lade Chests....");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Lade Chests...");
 
                 XDevApi.getInstance().getxScheduler().async(() -> {
                     List<Chest> chests = chestService.getChests();
@@ -73,7 +73,7 @@ public class KistenCommand implements CommandExecutor {
                 }
 
                 if(!block.hasMetadata("chestBlock")){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Auf diesen Block ist  keine Kiste gesetzt!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Auf diesen Block ist keine Kiste gesetzt!");
                     return true;
                 }
 
@@ -83,7 +83,7 @@ public class KistenCommand implements CommandExecutor {
 
                 block.removeMetadata("chestBlock", plugin);
 
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Block erfolgreich entfernt!");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Kiste erfolgreich entfernt!");
 
             }else if(args[0].equalsIgnoreCase("listrarities")){
 
@@ -102,7 +102,7 @@ public class KistenCommand implements CommandExecutor {
                 String name = args[1].replace("-", " ");
 
                 if(!rarityService.existItemRarity(name)){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe eine exestierende Seltenheit an!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe eine exestierende Seltenheit an.");
                     return true;
                 }
 
@@ -111,11 +111,11 @@ public class KistenCommand implements CommandExecutor {
             }else if(args[0].equalsIgnoreCase("editChest")){
                 String name = args[1].replace("-", " ");
 
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Lade Chestinhalt....");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Lade Chestinhalt...");
 
                 XDevApi.getInstance().getxScheduler().async(() -> {
                     if(!chestService.existChest(name)){
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert nicht!");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert nicht.");
                     }else {
                         Chest chest = chestService.getChest(name);
 
@@ -127,11 +127,11 @@ public class KistenCommand implements CommandExecutor {
             }else if(args[0].equalsIgnoreCase("testanimation")){
                 String name = args[1].replace("-", " ");
 
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Lade Chest....");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Lade Chest...");
 
                 XDevApi.getInstance().getxScheduler().async(() -> {
                     if(!chestService.existChest(name)){
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert nicht!");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert nicht.");
                     }else {
                         Chest chest = chestService.getChest(name);
 
@@ -145,14 +145,14 @@ public class KistenCommand implements CommandExecutor {
                 String rarity = args[1];
 
                 if(!rarityService.existItemRarity(rarity)){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe eine exestierende Seltenheit an!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe eine exestierende Seltenheit an.");
                     return true;
                 }
 
                 ItemStack itemStack = player.getInventory().getItemInMainHand();
 
                 if(itemStack == null || itemStack.getType() == Material.AIR){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte nehme ein Item in die Hand!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte nimm ein Item in die Hand.");
                     return true;
                 }
 
@@ -161,7 +161,7 @@ public class KistenCommand implements CommandExecutor {
 
                 player.getInventory().setItemInMainHand(nbtItem.getItem());
 
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast das Item erfolgreich als Kisten-Item gesetzt!");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast das Item erfolgreich als Kisten-Item gesetzt");
 
             }else if(args[0].equalsIgnoreCase("history")){
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
@@ -172,19 +172,19 @@ public class KistenCommand implements CommandExecutor {
                 String chest = args[1];
 
                 if(!chestService.existChest(chest)){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe eine exestierende Kiste an!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe eine exestierende Kiste an.");
                     return true;
                 }
 
                 Block block = player.getTargetBlock(null, 5);
 
                 if(block == null || block.getType() == Material.AIR){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte schaue einen Block an!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte schaue einen Block an.");
                     return true;
                 }
 
                 if(block.hasMetadata("chestBlock")){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Auf diesen Block ist bereits eine Kiste gesetzt! Benutze §b/kisten deleteLocation §7um sie zu entfernen!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Auf diesen Block ist bereits eine Kiste gesetzt. Benutze §b/kisten deleteLocation §7um sie zu entfernen!");
                     return true;
                 }
 
@@ -193,7 +193,7 @@ public class KistenCommand implements CommandExecutor {
                 new ChestLocationService(plugin).addChestLocation(chestLocation);
 
                 block.setMetadata("chestBlock", new FixedMetadataValue(plugin, chestLocation));
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast die angegebene Kiste erfolgreich auf den Block gesetzt!");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast die angegebene Kiste erfolgreich auf den Block gesetzt.");
 
             }else{
                 System.out.println(args[0]+" hi");
@@ -207,13 +207,13 @@ public class KistenCommand implements CommandExecutor {
                 String prefix = ChatColor.translateAlternateColorCodes('&', args[2]);
 
                 if(chestService.existChest(chestName)){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert bereits!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert bereits.");
                     return true;
                 }
 
                 chestService.createChest(chestName, prefix);
 
-                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast die Kiste "+prefix+" §7erfolgreich erstellt!");
+                player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast die Kiste "+prefix+" §7erfolgreich erstellt.");
 
             }else {
                 sendHelpMessage(player);
@@ -226,7 +226,7 @@ public class KistenCommand implements CommandExecutor {
                 Boolean broadcast = Boolean.parseBoolean(args[3]);
 
                 if(!isInteger(args[3])){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe einen Integer als weight an!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Bitte gebe einen Integer als Weight an.");
                     return true;
                 }
 
@@ -240,7 +240,7 @@ public class KistenCommand implements CommandExecutor {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[2]);
 
                 if(!chestService.existChest(args[3])){
-                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert nicht!");
+                    player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Diese Kiste exestiert nicht.");
                     return true;
                 }
 
@@ -285,14 +285,14 @@ public class KistenCommand implements CommandExecutor {
         player.sendMessage("§8§m--------------------------------------------------");
         player.sendMessage(" ");
         player.sendMessage("§7Benutze: §b/kisten createRarity <name> <prefix> <weight> <broadcast>");
-        player.sendMessage("§7Benutze: §b/kisten key add|set|remove <name> <kiste> <amount>");
-        player.sendMessage("§7Benutze: §b/kisten createChest <name> <prefix>");
-        player.sendMessage("§7Benutze: §b/kisten setItem <rarity>");
-        player.sendMessage("§7Benutze: §b/kisten deleteRarity <name>");
-        player.sendMessage("§7Benutze: §b/kisten editChest <name>");
-        player.sendMessage("§7Benutze: §b/kisten history <name>");
-        player.sendMessage("§7Benutze: §b/kisten addlocation <chest>");
-        player.sendMessage("§7Benutze: §b/kisten testanimation <name>");
+        player.sendMessage("§7Benutze: §b/kisten key §7<§badd§7|§bset§7|§bremove§7> <§bName§7> <§bKiste§7> <§bamount§7>");
+        player.sendMessage("§7Benutze: §b/kisten createChest §7<§bName§7> <§bDisplayname§7>");
+        player.sendMessage("§7Benutze: §b/kisten setItem §7<§bRarity§7>");
+        player.sendMessage("§7Benutze: §b/kisten deleteRarity §7<§bName§7>");
+        player.sendMessage("§7Benutze: §b/kisten editChest §7<§bName§7>");
+        player.sendMessage("§7Benutze: §b/kisten history §7<§bName§7>");
+        player.sendMessage("§7Benutze: §b/kisten addlocation §7<§bKiste§7>");
+        player.sendMessage("§7Benutze: §b/kisten testanimation §7<§bName§7>");
         player.sendMessage("§7Benutze: §b/kisten edit");
         player.sendMessage("§7Benutze: §b/kisten deletelocation");
         player.sendMessage("§7Benutze: §b/kisten listrarities");
