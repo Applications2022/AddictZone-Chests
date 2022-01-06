@@ -250,23 +250,35 @@ public class KistenCommand implements CommandExecutor {
                 switch (action.toLowerCase()) {
                     case "add" -> {
                         new KeyService(plugin).addKey(offlinePlayer.getUniqueId(), chest.getName(), amount);
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + offlinePlayer.getPlayer().getName() + " " + amount + " §aKiste§78§an§7) gegeben.");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + offlinePlayer.getPlayer().getName() + " " + amount + " " + chest.getPrefix() +" §aKiste§7(§an§7) gegeben.");
                         if (offlinePlayer.isOnline()) {
-                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------\n\n" + XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + amount + " " + chest.getPrefix() + " §aKiste§7(§an§7) erhalten.\n\n§8§m--------------------------------------------------");
+                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------");
+                            offlinePlayer.getPlayer().sendMessage(" ");
+                            offlinePlayer.getPlayer().sendMessage( XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + amount + " " + chest.getPrefix() + " §aKiste§7(§an§7) erhalten.");
+                            offlinePlayer.getPlayer().sendMessage(" ");
+                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------");
                         }
                     }
                     case "set" -> {
                         new KeyService(plugin).setKey(offlinePlayer.getUniqueId(), chest.getName(), amount);
                         player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§7Du hast die " + chest.getPrefix() + " §aKisten von §b" + offlinePlayer.getName() + " §7auf §b" + amount + " §7gesetzt!");
                         if (offlinePlayer.isOnline()) {
-                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------\n\n" + XDevApi.getInstance().getMessageService().getMessage("prefix") + "Deine " + chest.getPrefix() + " §aKisten wurden auf §b" + amount + " §7gesetzt.\n\n§8§m--------------------------------------------------");
+                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------");
+                            offlinePlayer.getPlayer().sendMessage(" ");
+                            offlinePlayer.getPlayer().sendMessage( XDevApi.getInstance().getMessageService().getMessage("prefix") + "Deine " + chest.getPrefix() + " §aKisten wurden auf §b" + amount + " §7gesetzt.");
+                            offlinePlayer.getPlayer().sendMessage(" ");
+                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------");
                         }
                     }
                     case "remove" -> {
                         new KeyService(plugin).removeKey(offlinePlayer.getUniqueId(), chest.getName(), amount);
-                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + offlinePlayer.getPlayer().getName() + " " + amount + " §aKiste§78§an§7) entfernt.");
+                        player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + offlinePlayer.getPlayer().getName() + " " + amount + " " + chest.getPrefix() +" §aKiste§7(§an§7) entfernt.");
                         if (offlinePlayer.isOnline()) {
-                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------\n\n" + XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + amount + " " + chest.getPrefix() + " §aKiste§7(§an§7) erhalten.\n\n§8§m--------------------------------------------------");
+                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------");
+                            offlinePlayer.getPlayer().sendMessage(" ");
+                            offlinePlayer.getPlayer().sendMessage( XDevApi.getInstance().getMessageService().getMessage("prefix") + "Du hast §b" + amount + " " + chest.getPrefix() + " §aKiste§7(§an§7) erhalten.");
+                            offlinePlayer.getPlayer().sendMessage(" ");
+                            offlinePlayer.getPlayer().sendMessage("§8§m--------------------------------------------------");
                         }
                     }
                     default -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix") + "§7Bitte gebe §badd, set §7oder §bremove §7als Aktion an!");

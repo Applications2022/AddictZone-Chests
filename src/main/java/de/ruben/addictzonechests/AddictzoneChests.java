@@ -52,7 +52,7 @@ public final class AddictzoneChests extends JavaPlugin {
         instance = this;
         this.luckperms =  LuckPermsProvider.get();
 //        this.mongoDBStorage = new MongoDBStorage(XDevApi.getInstance(), "localhost", "Currency", 27017, MongoClientOptions.builder().codecRegistry(CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry())).build());
-        this.mongoDBStorage = new MongoDBStorage(XDevApi.getInstance(), 10, "localhost", "Currency", 27017, "currency", "wrgO4FTbV6UyLwtMzfsp", MongoClientOptions.builder().codecRegistry(CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry())).build());
+        this.mongoDBStorage = new MongoDBStorage(XDevApi.getInstance(), 10, "localhost", "admin", 27017, "currency", "rni1PbUbxYp4JTrPaMb8", MongoClientOptions.builder().codecRegistry(CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry())).build());
 
         this.executorService = Executors.newScheduledThreadPool(5);
         this.rarityCache = Cache2kBuilder

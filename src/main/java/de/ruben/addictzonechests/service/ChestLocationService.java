@@ -32,6 +32,6 @@ public record ChestLocationService(AddictzoneChests plugin) {
 
 
     private MongoCollection<Document> getCollection() {
-        return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_ChestLocations");
+        return plugin.getMongoDBStorage().getMongoClient().getDatabase("Chests").getCollection("Data_ChestLocations");
     }
 }

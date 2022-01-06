@@ -119,7 +119,7 @@ public record ChestService(AddictzoneChests plugin) {
     }
 
     public MongoCollection<Document> getCollection() {
-        return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_Chest");
+        return plugin.getMongoDBStorage().getMongoClient().getDatabase("Chests").getCollection("Data_Chest");
     }
 
     public Cache<String, Chest> getCache() {

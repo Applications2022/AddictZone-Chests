@@ -72,6 +72,6 @@ public class MoneyVoucher implements Voucher{
 
     @Override
     public void onWin(Player player, ItemStack itemStack) {
-        new CashService().addValue(player.getUniqueId(), money, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"Du hast §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(money)+"€ §7erstattet bekommen!"));
+        new CashService().addValue(player.getUniqueId(), money, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"Du hast §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(money)+"€ §7gewonnen!"));
     }
 }

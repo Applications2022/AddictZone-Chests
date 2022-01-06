@@ -59,6 +59,9 @@ public class RankVoucher implements Voucher{
 
         lore.add(Component.text(" "));
         lore.add(Component.text("§7➥ Du erhältst den §"+group.getCachedData().getMetaData().getMetaValue("color")+group.getCachedData().getMetaData().getPrefix()+" §bRang"));
+        lore.add(Component.text(" "));
+        lore.add(Component.text("§7➥ Wenn du diesen §6Gewinn §7schon besitzt,"));
+        lore.add(Component.text("§7➥ erhältst du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7auf dein §aKonto§7."));
 
         itemMeta.lore(lore);
 
@@ -86,14 +89,15 @@ public class RankVoucher implements Voucher{
         Group playerGroup = AddictzoneChests.getInstance().getLuckperms().getGroupManager().getGroup(AddictzoneChests.getInstance().getLuckperms().getUserManager().getUser(player.getUniqueId()).getPrimaryGroup());
 
         if(newGroup.getWeight().getAsInt() > playerGroup.getWeight().getAsInt()){
-            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" parent add "+rank);
+            Bukkit.getScheduler().runTask(AddictzoneChests.getInstance(), () -> {
+                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "lp user "+player.getName()+" parent add "+rank);
+            });
 
             player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Du hast §b"
                     +(itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : itemStack.getType().name().toLowerCase())+
                     " §7gewonnen!");
         }else{
-            new CashService().addValue(player.getUniqueId(), compensation, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Da du den §b"
-                    +(itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : itemStack.getType().name().toLowerCase())+
+            new CashService().addValue(player.getUniqueId(), compensation, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Da du diesen §6Gewinn"+
                     " §7schon besitzt hast du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7erstattet bekommen!"));
         }
 

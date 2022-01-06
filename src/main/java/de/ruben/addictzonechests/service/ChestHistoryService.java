@@ -59,6 +59,6 @@ public record ChestHistoryService(AddictzoneChests plugin) {
     }
 
     private MongoCollection<Document> getCollection() {
-        return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_ChestHistories");
+        return plugin.getMongoDBStorage().getMongoClient().getDatabase("Chests").getCollection("Data_ChestHistories");
     }
 }

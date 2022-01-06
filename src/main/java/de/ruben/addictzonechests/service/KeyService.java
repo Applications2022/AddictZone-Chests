@@ -172,7 +172,7 @@ public record KeyService(AddictzoneChests plugin) {
     }
 
     private MongoCollection<Document> getCollection() {
-        return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_ChestKeys");
+        return plugin.getMongoDBStorage().getMongoClient().getDatabase("Chests").getCollection("Data_ChestKeys");
     }
 
     private Cache<UUID, Map> getCache() {

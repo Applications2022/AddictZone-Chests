@@ -20,10 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ItemPreviewGui extends Gui {
@@ -81,7 +78,14 @@ public class ItemPreviewGui extends Gui {
             ItemMeta itemMeta = itemStackToPlace.getItemMeta();
 
             List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
-            lore.add(Component.text(" "));
+            if(lore.size() >= 1) {
+                List<String> stringLore = itemMeta.getLore();
+                if (!stringLore.get((lore.size()-1)).equals("§7") && !stringLore.get((lore.size()-1)).equals("§a ") && !stringLore.get((lore.size()-1)).equals("§b ") && !stringLore.get((lore.size()-1)).equals("§c ") && !stringLore.get((lore.size()-1)).equals(" ") && !stringLore.get((lore.size()-1)).isEmpty()) {
+                    lore.add(Component.text(" "));
+                }
+            }else{
+                lore.add(Component.text(" "));
+            }
             lore.add(Component.text("§7Gewinntyp: §b"+(new VoucherService().isVoucher(chestItem.getItemStack()) ? "Gutschein" : "Item")));
             lore.add(Component.text("§7Seltenheit: "+ ChatColor.translateAlternateColorCodes('&', chestItem.getItemRarity().getPrefix())));
 

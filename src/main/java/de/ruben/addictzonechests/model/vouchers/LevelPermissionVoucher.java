@@ -8,11 +8,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -49,7 +54,20 @@ public class LevelPermissionVoucher implements Voucher{
         nbtItem.setInteger("maxLevel", maxLevel);
         nbtItem.setInteger("compensation", compensation);
 
-        return nbtItem.getItem();
+        itemStack = nbtItem.getItem();
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
+
+        lore.add(Component.text(" "));
+        lore.add(Component.text("§7➥ Wenn du diesen §6Gewinn §7schon besitzt,"));
+        lore.add(Component.text("§7➥ erhältst du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7auf dein §aKonto§7."));
+
+        itemMeta.lore(lore);
+
+        itemStack.setItemMeta(itemMeta);
+
+        return itemStack;
     }
 
     @Override

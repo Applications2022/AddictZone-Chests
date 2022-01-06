@@ -74,7 +74,7 @@ public record RarityService(AddictzoneChests plugin) {
     }
 
     private MongoCollection<Document> getCollection() {
-        return plugin.getMongoDBStorage().getMongoDatabase().getCollection("Data_Rarity");
+        return plugin.getMongoDBStorage().getMongoClient().getDatabase("Chests").getCollection("Data_Rarity");
     }
 
     private Cache<String, ItemRarity> getCache() {

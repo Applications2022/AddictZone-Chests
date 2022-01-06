@@ -8,11 +8,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -46,7 +50,20 @@ public class PermissionVoucher implements Voucher{
         nbtItem.setString("permission", permission);
         nbtItem.setInteger("compensation", compensation);
 
-        return nbtItem.getItem();
+        itemStack = nbtItem.getItem();
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        List<Component> lore = itemMeta.hasLore() ? itemMeta.lore() : new ArrayList<>();
+
+        lore.add(Component.text(" "));
+        lore.add(Component.text("§7➥ Wenn du diesen §6Gewinn §7schon besitzt,"));
+        lore.add(Component.text("§7➥ erhältst du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7auf dein §aKonto§7."));
+
+        itemMeta.lore(lore);
+
+        itemStack.setItemMeta(itemMeta);
+
+        return itemStack;
     }
 
     @Override
@@ -63,8 +80,7 @@ public class PermissionVoucher implements Voucher{
     @Override
     public void onWin(Player player, ItemStack itemStack) {
         if(player.hasPermission(permission)){
-            new CashService().addValue(player.getUniqueId(), compensation, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Da du §b"
-                    +(itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : itemStack.getType().name().toLowerCase())+
+            new CashService().addValue(player.getUniqueId(), compensation, cashAccount -> player.sendMessage(XDevApi.getInstance().getMessageService().getMessage("prefix")+"§7Da du diesen §6Gewinn"+
                     " §7schon besitzt hast du §b"+XDevApi.getInstance().getxUtil().getStringUtil().moneyFormat(compensation)+"€ §7erstattet bekommen!"));
         }else{
             User user = AddictzoneChests.getInstance().getLuckperms().getPlayerAdapter(Player.class).getUser(player);
